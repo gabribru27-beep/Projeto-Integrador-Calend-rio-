@@ -1,0 +1,440 @@
+/*****************************************************************
+    PROJETO
+    Calendário Acadêmico SENAC
+    style.css
+******************************************************************/
+
+/*============================================================
+RESET CSS
+Remove as configurações padrão do navegador.
+============================================================*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/*============================================================
+CORES OFICIAIS DO SENAC
+Estas variáveis facilitam futuras alterações.
+============================================================*/
+:root {
+    --azul-senac: #003A70;
+    --azul-claro: #005CA9;
+    --laranja: #F58220;
+    --cinza: #F2F2F2;
+    --branco: #FFFFFF;
+    --preto: #333333;
+}
+
+/*============================================================
+BODY
+============================================================*/
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--cinza);
+    color: var(--preto);
+}
+
+/*============================================================
+HEADER
+============================================================*/
+header {
+    background: var(--azul-senac);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    padding: 20px;
+}
+
+/*============================================================
+MENU
+============================================================*/
+.menu {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.menu a {
+    color: white;
+    text-decoration: none;
+    background: var(--azul-claro);
+    padding: 10px 14px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.menu a:hover,
+.menu a:focus {
+    background: var(--laranja);
+}
+
+/*============================================================
+LOGO
+============================================================*/
+.logo img {
+    height: 80px;
+}
+
+/*============================================================
+TÍTULOS
+============================================================*/
+.titulo {
+    margin-left: 20px;
+}
+
+.titulo h1 {
+    font-size: 32px;
+}
+
+.titulo h2 {
+    color: var(--laranja);
+    margin-top: 5px;
+}
+
+/*============================================================
+CONTEÚDO
+============================================================*/
+main {
+    width: 90%;
+    margin: auto;
+    margin-top: 40px;
+}
+
+/*============================================================
+APRESENTAÇÃO
+============================================================*/
+.apresentacao {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .10);
+}
+
+/*============================================================
+CALENDÁRIO
+============================================================*/
+.calendario {
+    background: white;
+    margin-top: 30px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .10);
+}
+
+.calendario h3 {
+    margin-bottom: 15px;
+    color: var(--azul-senac);
+}
+
+.mes-atual {
+    margin-bottom: 15px;
+}
+
+.dias-semana,
+.grade-calendario {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.dias-semana span {
+    background: var(--azul-claro);
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-weight: bold;
+}
+
+.dia {
+    background: var(--cinza);
+    color: var(--preto);
+    font-weight: 600;
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    min-height: 45px;
+}
+
+.dia.vazio {
+    background: transparent;
+    color: transparent;
+    border: none;
+}
+
+/*============================================================
+RODAPÉ
+============================================================*/
+footer {
+    background: var(--azul-senac);
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+}
+
+/*==========================================================PAINEL SUPERIOR==========================================================*/
+.painel-turma{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    margin-bottom:30px;
+}
+
+.campo{
+    display:flex;
+    flex-direction:column;
+}
+
+.campo label{
+    font-weight:bold;
+    margin-bottom:8px;
+    color:var(--azul-senac);
+}
+
+.campo input,
+.campo textarea{
+    padding:10px;
+    border:1px solid #CCC;
+    border-radius:5px;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.campo textarea{
+    min-height: 100px;
+    resize: vertical;
+}
+
+.campo-botao{
+    display:flex;
+    align-items:flex-end;
+}
+
+.btn-salvar{
+    background: var(--azul-senac);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-salvar:hover,
+.btn-salvar:focus{
+    background: var(--laranja);
+}
+
+.mensagem-sucesso{
+    background: #e8f7e3;
+    border: 1px solid #a1d99a;
+    color: #1e4b1e;
+    padding: 18px;
+    margin-bottom: 30px;
+    border-radius: 10px;
+}
+
+/*==========================================================CALENDÁRIO==========================================================*/
+.calendario{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:25px;
+}
+
+.mes{
+    background:white;
+    border-radius:8px;
+    box-shadow:0 0 10px rgba(0,0,0,.10);
+    overflow:hidden;
+}
+
+.mes h2{
+    background:var(--azul-senac);
+    color:white;
+    text-align:center;
+    padding:12px;
+    font-size:20px;
+}
+
+.dias-semana{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    background:var(--laranja);
+    color:white;
+    text-align:center;
+    font-weight:bold;
+}
+
+.dias-semana div{
+    padding:8px;
+}
+
+.dias{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    grid-template-rows:repeat(6,40px);
+}
+
+.ucs{
+    margin-top: 14px;
+    padding: 12px 16px;
+    background: #f7f7f7;
+    border-top: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.uc-barra{
+    position: relative;
+    padding: 12px 12px 8px;
+    border-radius: 10px;
+    color: #333;
+    min-height: 56px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.uc-barra strong{
+    font-size: 0.92rem;
+    margin-bottom: 6px;
+}
+
+.uc-barra .tag{
+    display: inline-block;
+    margin-top: 4px;
+    padding: 4px 8px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 999px;
+    font-size: 0.78rem;
+}
+
+.dia.fim-semana{
+    background: #f5f5f5;
+    color: #222;
+}
+
+.dia.feriado{
+    background: #ffe5e5;
+    color: #8a1f1f;
+    border-color: #ff9999;
+}
+
+.dia.recesso{
+    background: #e9f3ff;
+    color: #1b4b8a;
+    border-color: #99c2ff;
+}
+
+.dia span.tag{
+    display: block;
+    margin-top: 6px;
+    font-size: 0.72rem;
+    color: #333;
+    background: rgba(255,255,255,0.85);
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+.dia.uc{
+    color: #222;
+    background: #fbfbfb;
+}
+
+.dia.uc .uc-tag{
+    display: block;
+    margin-top: 6px;
+    font-size: 0.68rem;
+    color: #222;
+    background: rgba(255,255,255,0.9);
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+
+.legenda{
+    margin-top:35px;
+    display:flex;
+    gap:25px;
+    background:white;
+    padding:20px;
+    border-radius:8px;
+}
+
+.legenda-grupo{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.legenda-grupo h4{
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: var(--azul-senac);
+}
+
+.item-legenda{
+    display:flex;
+    align-items:center;
+}
+
+.cor{
+    width:22px;
+    height:22px;
+    margin-right:10px;
+    border-radius:4px;
+}
+
+.aula{
+    background:#FFFFFF;
+    border:1px solid #888;
+}
+
+.feriado{
+    background:#FF4D4D;
+}
+
+.uc{
+    background:var(--azul-claro);
+}
+
+/*==========================================================IMPRESSÃO==========================================================*/
+@media print{
+    header{
+        margin-bottom:20px;
+    }
+    footer{
+        display:none;
+    }
+    body{
+        background:white;
+    }
+    .calendario{
+        gap:10px;
+    }
+}
+
+/*==========================================================TABLET==========================================================*/
+@media(max-width:1100px){
+    .calendario{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+/*==========================================================CELULAR==========================================================*/
+@media(max-width:700px){
+    .calendario{
+        grid-template-columns:1fr;
+    }
+    .painel-turma{
+        grid-template-columns:1fr;
+    }
+}
