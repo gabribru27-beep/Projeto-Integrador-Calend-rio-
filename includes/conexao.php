@@ -16,7 +16,7 @@ if (!function_exists('conectarBanco')) {
         $host = 'localhost';
         $usuario = 'root';
         $senha = '';
-        $banco = 'calendario';
+        $banco = 'Calendario';
 
         $conn = new mysqli($host, $usuario, $senha, $banco);
 
