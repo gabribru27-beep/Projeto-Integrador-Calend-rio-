@@ -1,10 +1,7 @@
-<!--========================================================
-Página inicial
-Nesta página construímos o layout do calendário do Módulo 3.
-========================================================-->
 <?php
 require_once __DIR__ . '/../includes/conexao.php';
 
+// Captura de dados do formulário
 $curso = filter_input(INPUT_POST, 'curso', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '';
 $turma = filter_input(INPUT_POST, 'turma', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '';
 $turno = filter_input(INPUT_POST, 'turno', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '';
@@ -12,25 +9,18 @@ $carga = filter_input(INPUT_POST, 'carga', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?
 $docentes = filter_input(INPUT_POST, 'docentes', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '';
 $dataInicial = filter_input(INPUT_POST, 'data_inicial', FILTER_SANITIZE_STRING) ?: '';
 $dataFinal = filter_input(INPUT_POST, 'data_final', FILTER_SANITIZE_STRING) ?: '';
-$ucPlanejamentoInicio = filter_input(INPUT_POST, 'uc_planejamento_inicio', FILTER_SANITIZE_STRING) ?: '';
-$ucPlanejamentoFim = filter_input(INPUT_POST, 'uc_planejamento_fim', FILTER_SANITIZE_STRING) ?: '';
-$ucPlanejamentoCor = filter_input(INPUT_POST, 'uc_planejamento_cor', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '#bdd7ee';
 $cadastroRealizado = $_SERVER['REQUEST_METHOD'] === 'POST';
 
-$anoReferencia = obterConfiguracao('ano_referencia', date('Y'));
+// Configuração do Calendário
+$anoReferencia = date('Y'); // Se a função obterConfiguracao não existir, usa o ano atual
+if (function_exists('obterConfiguracao')) {
+    $anoReferencia = obterConfiguracao('ano_referencia', date('Y'));
+}
+
 $meses = [
-    1 => 'Janeiro',
-    2 => 'Fevereiro',
-    3 => 'Março',
-    4 => 'Abril',
-    5 => 'Maio',
-    6 => 'Junho',
-    7 => 'Julho',
-    8 => 'Agosto',
-    9 => 'Setembro',
-    10 => 'Outubro',
-    11 => 'Novembro',
-    12 => 'Dezembro'
+    1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
+    5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
+    9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
 ];
 
 $feriados = [
@@ -107,26 +97,20 @@ foreach ($unidadesCurriculares as $idx => $ucItem) {
     }
 }
 
-function ehFeriado(string $data, array $feriados): bool
-{
+function ehFeriado(string $data, array $feriados): bool {
     return isset($feriados[$data]);
 }
 
-function ehRecesso(string $data, array $recessos): bool
-{
+function ehRecesso(string $data, array $recessos): bool {
     foreach ($recessos as $recesso) {
         if ($data >= $recesso['inicio'] && $data <= $recesso['fim']) {
             return true;
         }
     }
-
     return false;
 }
 
-// Verificação geral de UC foi removida; a checagem por UC é feita dentro de gerarMes
-
-function obterIntervaloMes(array $uc, int $numeroMes, string $ano): ?array
-{
+function obterIntervaloMes(array $uc, int $numeroMes, string $ano): ?array {
     $primeiroDiaMes = DateTimeImmutable::createFromFormat('Y-n-j', "$ano-$numeroMes-1");
     $ultimoDiaMes = DateTimeImmutable::createFromFormat('Y-n-j', "$ano-$numeroMes-" . $primeiroDiaMes->format('t'));
 
@@ -151,8 +135,7 @@ function obterIntervaloMes(array $uc, int $numeroMes, string $ano): ?array
     ];
 }
 
-function gerarMes(int $numeroMes, string $nomeMes, string $ano, array $feriados, array $recessos, array $unidades): void
-{
+function gerarMes(int $numeroMes, string $nomeMes, string $ano, array $feriados, array $recessos, array $unidades): void {
     $primeiroDia = DateTimeImmutable::createFromFormat('Y-n-j', "$ano-$numeroMes-1");
     $totalDias = (int) $primeiroDia->format('t');
     $inicioSemana = (int) $primeiroDia->format('w');
@@ -174,7 +157,7 @@ function gerarMes(int $numeroMes, string $nomeMes, string $ano, array $feriados,
         $diaSemana = (int) $diaData->format('w');
 
         $classes = ['dia'];
-        $label = $dia;
+        $label = $dia; // Exibe APENAS o número
         $style = '';
 
         if ($diaSemana === 0 || $diaSemana === 6) {
@@ -183,17 +166,15 @@ function gerarMes(int $numeroMes, string $nomeMes, string $ano, array $feriados,
 
         if (ehFeriado($dataAtual, $feriados)) {
             $classes[] = 'feriado';
-            $label .= '<span class="tag">Feriado</span>';
         } elseif (ehRecesso($dataAtual, $recessos)) {
             $classes[] = 'recesso';
-            $label .= '<span class="tag">Recesso</span>';
         } else {
-            // verifica se a data pertence a alguma UC (dias úteis)
             foreach ($unidades as $ucIdx => $ucItem) {
                 if ($dataAtual >= $ucItem['inicio'] && $dataAtual <= $ucItem['fim']) {
                     if ($diaSemana !== 0 && $diaSemana !== 6) {
-                        $classes[] = 'uc-' . $ucIdx;
-                        $style = ' style="color:' . htmlspecialchars($ucItem['cor']) . ';"';
+                        $classes[] = 'uc';
+                        // CORREÇÃO: Aplica a cor no background e força o texto a ser escuro
+                        $style = ' style="background-color:' . htmlspecialchars($ucItem['cor']) . '; color: #333333;"';
                     }
                     break;
                 }
@@ -209,7 +190,7 @@ function gerarMes(int $numeroMes, string $nomeMes, string $ano, array $feriados,
         $totalCelas++;
     }
 
-    echo '</div>';
+    echo '</div>'; // Fecha .dias
 
     $unidadesMes = [];
     foreach ($unidades as $uc) {
@@ -226,7 +207,9 @@ function gerarMes(int $numeroMes, string $nomeMes, string $ano, array $feriados,
             $intervalo = $item['intervalo'];
             $inicioLabel = DateTimeImmutable::createFromFormat('Y-m-d', $intervalo['inicio'])->format('d/m');
             $fimLabel = DateTimeImmutable::createFromFormat('Y-m-d', $intervalo['fim'])->format('d/m');
-            echo '<div class="uc-barra" style="margin-left:' . number_format($intervalo['offset'], 4) . '%; width:' . number_format($intervalo['largura'], 4) . '%; background:' . $uc['cor'] . ';">';
+            
+            // Renderiza a barra com a largura correta baseada no deslocamento
+            echo '<div class="uc-barra" style="margin-left:' . number_format($intervalo['offset'], 4) . '%; width:' . number_format($intervalo['largura'], 4) . '%; background-color:' . htmlspecialchars($uc['cor']) . ';">';
             echo '<strong>' . htmlspecialchars($uc['nome']) . '</strong>';
             echo '<span class="tag">' . $inicioLabel . ' - ' . $fimLabel . '</span>';
             echo '</div>';
@@ -234,108 +217,148 @@ function gerarMes(int $numeroMes, string $nomeMes, string $ano, array $feriados,
         echo '</div>';
     }
 
-    echo '</article>';
+    echo '</article>'; // Fecha .mes
 }
 ?>
-<main>
-    <!-- ==========================================================
-         PAINEL DE DADOS DA TURMA
-    ========================================================== -->
-    <form class="painel-turma" method="post">
-        <div class="campo">
-            <label for="curso">Curso</label>
-            <input id="curso" name="curso" type="text" placeholder="Técnico em Informática" value="<?= htmlspecialchars($curso) ?>">
-        </div>
-        <div class="campo">
-            <label for="turma">Turma</label>
-            <input id="turma" name="turma" type="text" placeholder="2026.0001" value="<?= htmlspecialchars($turma) ?>">
-        </div>
-        <div class="campo">
-            <label for="turno">Turno</label>
-            <input id="turno" name="turno" type="text" placeholder="Noite" value="<?= htmlspecialchars($turno) ?>">
-        </div>
-        <div class="campo">
-            <label for="carga">Carga Horária</label>
-            <input id="carga" name="carga" type="text" placeholder="1200 horas" value="<?= htmlspecialchars($carga) ?>">
-        </div>
-        <div class="campo">
-            <label for="docentes">Docentes</label>
-            <textarea id="docentes" name="docentes" placeholder="Nome dos docentes"><?= htmlspecialchars($docentes) ?></textarea>
-        </div>
-        <div class="campo">
-            <label for="data_inicial">Data Inicial</label>
-            <input id="data_inicial" name="data_inicial" type="date" value="<?= htmlspecialchars($dataInicial) ?>">
-        </div>
-        <div class="campo">
-            <label for="data_final">Data Final</label>
-            <input id="data_final" name="data_final" type="date" value="<?= htmlspecialchars($dataFinal) ?>">
-        </div>
-
-        <?php foreach ($unidadesCurriculares as $i => $ucItem): ?>
-            <div class="campo">
-                <label for="uc_<?= $i ?>_inicio">Início <?= htmlspecialchars($ucItem['nome']) ?></label>
-                <input id="uc_<?= $i ?>_inicio" name="uc_<?= $i ?>_inicio" type="date" value="<?= htmlspecialchars($_POST['uc_'.$i.'_inicio'] ?? $ucItem['inicio']) ?>">
-            </div>
-            <div class="campo">
-                <label for="uc_<?= $i ?>_fim">Fim <?= htmlspecialchars($ucItem['nome']) ?></label>
-                <input id="uc_<?= $i ?>_fim" name="uc_<?= $i ?>_fim" type="date" value="<?= htmlspecialchars($_POST['uc_'.$i.'_fim'] ?? $ucItem['fim']) ?>">
-            </div>
-            <div class="campo">
-                <label for="uc_<?= $i ?>_cor">Cor <?= htmlspecialchars($ucItem['nome']) ?></label>
-                <input id="uc_<?= $i ?>_cor" name="uc_<?= $i ?>_cor" type="color" value="<?= htmlspecialchars($_POST['uc_'.$i.'_cor'] ?? $ucItem['cor']) ?>">
-            </div>
-        <?php endforeach; ?>
-
-        <div class="campo campo-botao">
-            <button type="submit" class="btn-salvar">Salvar cadastro</button>
-        </div>
-    </form>
-
-    <?php if ($cadastroRealizado): ?>
-        <section class="mensagem-sucesso">
-            <strong>Cadastro realizado com sucesso!</strong>
-            <p>Turma <strong><?= htmlspecialchars($turma) ?></strong> cadastrada para o curso <strong><?= htmlspecialchars($curso) ?></strong>.</p>
-        </section>
-    <?php endif; ?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário Acadêmico - SENAC</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
     <!-- ==========================================================
-         CALENDÁRIO
+         CABEÇALHO
     ========================================================== -->
-    <section class="calendario">
-        <?php
-        foreach ($meses as $numeroMes => $mes) {
-            gerarMes($numeroMes, $mes, $anoReferencia, $feriados, $recessos, $unidadesCurriculares);
-        }
-        ?>
-    </section>
+    <header>
+        <div style="display: flex; align-items: center;">
+            <div class="logo">
+                <!-- <img src="logo-senac.png" alt="Logo SENAC"> -->
+            </div>
+            <div class="titulo">
+                <h1>Calendário Acadêmico</h1>
+                <h2>Planejamento de Turmas</h2>
+            </div>
+        </div>
+        <nav class="menu">
+            <a href="#">Nova Turma</a>
+            <a href="#">Relatórios</a>
+            <a href="#">Configurações</a>
+        </nav>
+    </header>
 
-    <!-- ==========================================================
-         LEGENDA
-    ========================================================== -->
-    <section class="legenda">
-        <div class="legenda-grupo">
-            <h4>Unidades Curriculares</h4>
-            <?php foreach ($unidadesCurriculares as $uc): ?>
-                <div class="item-legenda">
-                    <span class="cor" style="background: <?= $uc['cor'] ?>;"></span>
-                    <?= htmlspecialchars($uc['nome']) ?>
+    <main>
+        <!-- ==========================================================
+             PAINEL DE DADOS DA TURMA
+        ========================================================== -->
+        <form class="painel-turma" method="post">
+            <div class="campo">
+                <label for="curso">Curso</label>
+                <input id="curso" name="curso" type="text" placeholder="Técnico em Informática" value="<?= htmlspecialchars($curso) ?>">
+            </div>
+            <div class="campo">
+                <label for="turma">Turma</label>
+                <input id="turma" name="turma" type="text" placeholder="2026.0001" value="<?= htmlspecialchars($turma) ?>">
+            </div>
+            <div class="campo">
+                <label for="turno">Turno</label>
+                <input id="turno" name="turno" type="text" placeholder="Noite" value="<?= htmlspecialchars($turno) ?>">
+            </div>
+            <div class="campo">
+                <label for="carga">Carga Horária</label>
+                <input id="carga" name="carga" type="text" placeholder="1200 horas" value="<?= htmlspecialchars($carga) ?>">
+            </div>
+            <div class="campo">
+                <label for="docentes">Docentes</label>
+                <textarea id="docentes" name="docentes" placeholder="Nome dos docentes"><?= htmlspecialchars($docentes) ?></textarea>
+            </div>
+            <div class="campo">
+                <label for="data_inicial">Data Inicial</label>
+                <input id="data_inicial" name="data_inicial" type="date" value="<?= htmlspecialchars($dataInicial) ?>">
+            </div>
+            <div class="campo">
+                <label for="data_final">Data Final</label>
+                <input id="data_final" name="data_final" type="date" value="<?= htmlspecialchars($dataFinal) ?>">
+            </div>
+
+            <?php foreach ($unidadesCurriculares as $i => $ucItem): ?>
+                <div class="campo">
+                    <label for="uc_<?= $i ?>_inicio">Início <?= htmlspecialchars($ucItem['nome']) ?></label>
+                    <input id="uc_<?= $i ?>_inicio" name="uc_<?= $i ?>_inicio" type="date" value="<?= htmlspecialchars($_POST['uc_'.$i.'_inicio'] ?? $ucItem['inicio']) ?>">
+                </div>
+                <div class="campo">
+                    <label for="uc_<?= $i ?>_fim">Fim <?= htmlspecialchars($ucItem['nome']) ?></label>
+                    <input id="uc_<?= $i ?>_fim" name="uc_<?= $i ?>_fim" type="date" value="<?= htmlspecialchars($_POST['uc_'.$i.'_fim'] ?? $ucItem['fim']) ?>">
+                </div>
+                <div class="campo">
+                    <label for="uc_<?= $i ?>_cor">Cor <?= htmlspecialchars($ucItem['nome']) ?></label>
+                    <input id="uc_<?= $i ?>_cor" name="uc_<?= $i ?>_cor" type="color" value="<?= htmlspecialchars($_POST['uc_'.$i.'_cor'] ?? $ucItem['cor']) ?>">
                 </div>
             <?php endforeach; ?>
-        </div>
-        <div class="legenda-grupo">
-            <h4>Tipos de dia</h4>
-            <div class="item-legenda">
-                <span class="cor fim-semana"></span>
-                Fim de semana
+
+            <div class="campo campo-botao">
+                <button type="submit" class="btn-salvar">Salvar Planejamento</button>
             </div>
-            <div class="item-legenda">
-                <span class="cor feriado"></span>
-                Feriado
+        </form>
+
+        <?php if ($cadastroRealizado): ?>
+            <section class="mensagem-sucesso">
+                <strong>Cadastro realizado com sucesso!</strong>
+                <p>Turma <strong><?= htmlspecialchars($turma) ?></strong> cadastrada para o curso <strong><?= htmlspecialchars($curso) ?></strong>.</p>
+            </section>
+        <?php endif; ?>
+
+        <!-- ==========================================================
+             CALENDÁRIO DE 12 MESES
+        ========================================================== -->
+        <section class="calendario">
+            <?php
+            foreach ($meses as $numeroMes => $mes) {
+                gerarMes($numeroMes, $mes, $anoReferencia, $feriados, $recessos, $unidadesCurriculares);
+            }
+            ?>
+        </section>
+
+        <!-- ==========================================================
+             LEGENDA
+        ========================================================== -->
+        <section class="legenda">
+            <div class="legenda-grupo">
+                <h4>Unidades Curriculares</h4>
+                <?php foreach ($unidadesCurriculares as $uc): ?>
+                    <div class="item-legenda">
+                        <span class="cor" style="background-color: <?= htmlspecialchars($uc['cor']) ?>;"></span>
+                        <?= htmlspecialchars($uc['nome']) ?>
+                    </div>
+                <?php endforeach; ?>
             </div>
-            <div class="item-legenda">
-                <span class="cor recesso"></span>
-                Recesso
+            <div class="legenda-grupo">
+                <h4>Tipos de dia</h4>
+                <div class="item-legenda">
+                    <span class="cor fim-semana" style="background-color: #f5f5f5; border: 1px solid #ddd;"></span>
+                    Fim de semana
+                </div>
+                <div class="item-legenda">
+                    <span class="cor feriado" style="background-color: #FF4D4D;"></span>
+                    Feriado
+                </div>
+                <div class="item-legenda">
+                    <span class="cor recesso" style="background-color: #99c2ff;"></span>
+                    Recesso
+                </div>
             </div>
-        </div>
-    </section>
-</main>
+        </section>
+    </main>
+
+    <!-- ==========================================================
+         RODAPÉ
+    ========================================================== -->
+    <footer>
+        <p>Desenvolvido para o Sistema Acadêmico SENAC &copy; <?php echo date('Y'); ?></p>
+    </footer>
+
+</body>
+</html>

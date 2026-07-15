@@ -89,7 +89,7 @@ function obterUnidadePorData(string $data, array $unidades)
 }
 ?>
 
-<section class="calendario">
+<section class="calendario-container">
     <h3>Calendário acadêmico</h3>
 
     <div class="mes-atual">
@@ -108,44 +108,71 @@ function obterUnidadePorData(string $data, array $unidades)
 
     <div class="grade-calendario">
         <?php
+        // Preenche os espaços vazios antes do primeiro dia do mês
         for ($i = 0; $i < $diaSemanaInicio; $i++) {
             echo '<div class="dia vazio"></div>';
         }
 
+        // Gera os dias do mês
         for ($dia = 1; $dia <= $totalDias; $dia++) {
             $dataAtual = sprintf('%04d-%02d-%02d', $anoAtual, $mesAtual, $dia);
             $diaSemana = date('w', strtotime($dataAtual));
             $classes = ['dia'];
             $style = '';
+            
+            // O label agora contém APENAS o número do dia
             $label = $dia;
 
             if ($diaSemana === '0' || $diaSemana === '6') {
                 $classes[] = 'fim-semana';
             }
 
+            // Aplica as classes baseadas no tipo de evento, sem adicionar texto extra
             if (ehFeriado($dataAtual, $feriados)) {
                 $classes[] = 'feriado';
-                $label .= '<span class="tag">Feriado</span>';
             } elseif (ehRecesso($dataAtual, $recessos)) {
                 $classes[] = 'recesso';
-                $label .= '<span class="tag">Recesso</span>';
             } else {
                 $uc = obterUnidadePorData($dataAtual, $unidadesCurriculares);
                 if ($uc !== null && $diaSemana !== '0' && $diaSemana !== '6') {
                     $classes[] = 'uc';
+                    // Se quiser manter a cor da fonte dinâmica vinda do banco:
                     $style = ' style="color:' . htmlspecialchars($uc['cor']) . ';"';
-                    $label .= '<span class="tag">' . htmlspecialchars($uc['nome']) . '</span>';
                 }
             }
 
             echo '<div class="' . implode(' ', $classes) . '"' . $style . '>' . $label . '</div>';
         }
 
+        // Preenche os espaços vazios no final da última semana
         $totalCelas = $diaSemanaInicio + $totalDias;
         while ($totalCelas % 7 !== 0) {
             echo '<div class="dia vazio"></div>';
             $totalCelas++;
         }
         ?>
+    </div>
+
+    <!-- LEGENDA EXIBIDA NA PARTE DE BAIXO -->
+    <div class="legenda">
+        <div class="legenda-grupo">
+            <h4>Legenda de Cores</h4>
+            <div class="item-legenda">
+                <div class="cor aula"></div>
+                <span>Dias Letivos (Normal)</span>
+            </div>
+            <div class="item-legenda">
+                <div class="cor uc"></div>
+                <span>Unidade Curricular (UC)</span>
+            </div>
+            <div class="item-legenda">
+                <div class="cor recesso"></div>
+                <span>Recesso Escolar</span>
+            </div>
+            <div class="item-legenda">
+                <div class="cor feriado"></div>
+                <span>Feriado</span>
+            </div>
+        </div>
     </div>
 </section>

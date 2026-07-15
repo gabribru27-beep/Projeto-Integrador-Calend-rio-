@@ -6,7 +6,6 @@
 
 /*============================================================
 RESET CSS
-Remove as configurações padrão do navegador.
 ============================================================*/
 * {
     margin: 0;
@@ -16,7 +15,6 @@ Remove as configurações padrão do navegador.
 
 /*============================================================
 CORES OFICIAIS DO SENAC
-Estas variáveis facilitam futuras alterações.
 ============================================================*/
 :root {
     --azul-senac: #003A70;
@@ -73,15 +71,12 @@ MENU
 }
 
 /*============================================================
-LOGO
+LOGO & TÍTULOS
 ============================================================*/
 .logo img {
     height: 80px;
 }
 
-/*============================================================
-TÍTULOS
-============================================================*/
 .titulo {
     margin-left: 20px;
 }
@@ -105,19 +100,9 @@ main {
 }
 
 /*============================================================
-APRESENTAÇÃO
+CALENDÁRIO (GERAL)
 ============================================================*/
-.apresentacao {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, .10);
-}
-
-/*============================================================
-CALENDÁRIO
-============================================================*/
-.calendario {
+.calendario-container {
     background: white;
     margin-top: 30px;
     padding: 20px;
@@ -125,7 +110,7 @@ CALENDÁRIO
     box-shadow: 0 0 10px rgba(0, 0, 0, .10);
 }
 
-.calendario h3 {
+.calendario-container h3 {
     margin-bottom: 15px;
     color: var(--azul-senac);
 }
@@ -134,21 +119,9 @@ CALENDÁRIO
     margin-bottom: 15px;
 }
 
-.dias-semana,
-.grade-calendario {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-}
-
-.dias-semana span {
-    background: var(--azul-claro);
-    color: white;
-    text-align: center;
-    padding: 8px;
-    font-weight: bold;
-}
-
+/*============================================================
+DIA DO CALENDÁRIO
+============================================================*/
 .dia {
     background: var(--cinza);
     color: var(--preto);
@@ -157,12 +130,40 @@ CALENDÁRIO
     padding: 10px;
     text-align: center;
     min-height: 45px;
+    
+    /* Centraliza o número perfeitamente */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .dia.vazio {
     background: transparent;
     color: transparent;
     border: none;
+}
+
+.dia.fim-semana{
+    background: #f5f5f5;
+    color: #222;
+}
+
+.dia.feriado{
+    background: #ffe5e5;
+    color: #8a1f1f;
+    border-color: #ff9999;
+}
+
+.dia.recesso{
+    background: #e9f3ff;
+    color: #1b4b8a;
+    border-color: #99c2ff;
+}
+
+/* Regra limpa, já que removemos as tags no PHP */
+.dia.uc{
+    color: #333;
 }
 
 /*============================================================
@@ -176,7 +177,9 @@ footer {
     margin-top: 40px;
 }
 
-/*==========================================================PAINEL SUPERIOR==========================================================*/
+/*==========================================================
+PAINEL SUPERIOR
+==========================================================*/
 .painel-turma{
     display:grid;
     grid-template-columns:repeat(3,1fr);
@@ -241,7 +244,9 @@ footer {
     border-radius: 10px;
 }
 
-/*==========================================================CALENDÁRIO==========================================================*/
+/*==========================================================
+GRADE DOS MESES (CALENDÁRIO)
+==========================================================*/
 .calendario{
     display:grid;
     grid-template-columns:repeat(3,1fr);
@@ -272,16 +277,20 @@ footer {
     font-weight:bold;
 }
 
-.dias-semana div{
+.dias-semana div {
     padding:8px;
 }
 
 .dias{
     display:grid;
     grid-template-columns:repeat(7,1fr);
-    grid-template-rows:repeat(6,40px);
+    /* Altura cresce automaticamente caso precise */
+    grid-template-rows:repeat(6, minmax(40px, auto));
 }
 
+/*==========================================================
+UNIDADES CURRICULARES (UCs)
+==========================================================*/
 .ucs{
     margin-top: 14px;
     padding: 12px 16px;
@@ -302,11 +311,21 @@ footer {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    
+    /* CORREÇÃO DA PROPORÇÃO: evita que vaze as laterais */
+    min-width: 0; 
+    overflow: hidden;
 }
 
 .uc-barra strong{
     font-size: 0.92rem;
     margin-bottom: 6px;
+    
+    /* Trunca textos muito longos com "..." para não quebrar a barra */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
 }
 
 .uc-barra .tag{
@@ -316,50 +335,17 @@ footer {
     background: rgba(255,255,255,0.8);
     border-radius: 999px;
     font-size: 0.78rem;
+    
+    /* Trunca datas/texto caso fique muito grande na responsividade */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
-.dia.fim-semana{
-    background: #f5f5f5;
-    color: #222;
-}
-
-.dia.feriado{
-    background: #ffe5e5;
-    color: #8a1f1f;
-    border-color: #ff9999;
-}
-
-.dia.recesso{
-    background: #e9f3ff;
-    color: #1b4b8a;
-    border-color: #99c2ff;
-}
-
-.dia span.tag{
-    display: block;
-    margin-top: 6px;
-    font-size: 0.72rem;
-    color: #333;
-    background: rgba(255,255,255,0.85);
-    border-radius: 4px;
-    padding: 2px 4px;
-}
-
-.dia.uc{
-    color: #222;
-    background: #fbfbfb;
-}
-
-.dia.uc .uc-tag{
-    display: block;
-    margin-top: 6px;
-    font-size: 0.68rem;
-    color: #222;
-    background: rgba(255,255,255,0.9);
-    border-radius: 4px;
-    padding: 2px 6px;
-}
-
+/*==========================================================
+LEGENDA
+==========================================================*/
 .legenda{
     margin-top:35px;
     display:flex;
@@ -393,20 +379,9 @@ footer {
     border-radius:4px;
 }
 
-.aula{
-    background:#FFFFFF;
-    border:1px solid #888;
-}
-
-.feriado{
-    background:#FF4D4D;
-}
-
-.uc{
-    background:var(--azul-claro);
-}
-
-/*==========================================================IMPRESSÃO==========================================================*/
+/*==========================================================
+IMPRESSÃO
+==========================================================*/
 @media print{
     header{
         margin-bottom:20px;
@@ -422,19 +397,23 @@ footer {
     }
 }
 
-/*==========================================================TABLET==========================================================*/
+/*==========================================================
+RESPONSIVIDADE (TABLET & CELULAR)
+==========================================================*/
 @media(max-width:1100px){
     .calendario{
         grid-template-columns:repeat(2,1fr);
     }
 }
 
-/*==========================================================CELULAR==========================================================*/
 @media(max-width:700px){
     .calendario{
         grid-template-columns:1fr;
     }
     .painel-turma{
         grid-template-columns:1fr;
+    }
+    .legenda{
+        flex-direction: column;
     }
 }
