@@ -5,11 +5,62 @@ session_start();
 // 1. DADOS PADRÃO (Para o calendário não iniciar totalmente vazio)
 if (!isset($_SESSION['eventos'])) {
     $_SESSION['eventos'] = [
-        '2026-01-01' => ['nome' => 'Ano Novo', 'tipo' => 'feriado'],
-        '2026-04-03' => ['nome' => 'Sexta-feira Santa', 'tipo' => 'feriado'],
-        '2026-05-01' => ['nome' => 'Dia do Trabalho', 'tipo' => 'feriado'],
-        '2026-06-24' => ['nome' => 'São João (Recesso)', 'tipo' => 'recesso'],
+        [
+            'nome' => 'Ano Novo',
+            'descricao' => 'Feriado nacional',
+            'marcacao' => 'Feriado',
+            'tipo' => 'feriado',
+            'cor' => '#ff9999',
+            'inicio' => '2026-01-01',
+            'fim' => '2026-01-01'
+        ],
+        [
+            'nome' => 'Sexta-feira Santa',
+            'descricao' => 'Feriado religioso',
+            'marcacao' => 'Feriado',
+            'tipo' => 'feriado',
+            'cor' => '#ff9999',
+            'inicio' => '2026-04-03',
+            'fim' => '2026-04-03'
+        ],
+        [
+            'nome' => 'Dia do Trabalho',
+            'descricao' => 'Feriado nacional',
+            'marcacao' => 'Feriado',
+            'tipo' => 'feriado',
+            'cor' => '#ff9999',
+            'inicio' => '2026-05-01',
+            'fim' => '2026-05-01'
+        ],
+        [
+            'nome' => 'São João (Recesso)',
+            'descricao' => 'Período de recesso',
+            'marcacao' => 'Recesso',
+            'tipo' => 'recesso',
+            'cor' => '#99c2ff',
+            'inicio' => '2026-06-24',
+            'fim' => '2026-06-24'
+        ],
     ];
+} elseif (!empty($_SESSION['eventos']) && array_keys($_SESSION['eventos']) !== range(0, count($_SESSION['eventos']) - 1)) {
+    $eventosNormalizados = [];
+    foreach ($_SESSION['eventos'] as $data => $evento) {
+        $eventosNormalizados[] = [
+            'nome' => $evento['nome'] ?? 'Evento',
+            'descricao' => $evento['descricao'] ?? '',
+            'marcacao' => $evento['marcacao'] ?? '',
+            'tipo' => $evento['tipo'] ?? 'feriado',
+            'cor' => $evento['cor'] ?? ((($evento['tipo'] ?? '') === 'recesso') ? '#99c2ff' : '#ff9999'),
+            'inicio' => $data,
+            'fim' => $data
+        ];
+    }
+    $_SESSION['eventos'] = $eventosNormalizados;
+}
+
+$mesSelecionado = $_GET['mes'] ?? $_POST['mes'] ?? '';
+if (!empty($mesSelecionado) && (!is_numeric($mesSelecionado) || $mesSelecionado < 1 || $mesSelecionado > 12)) {
+    $mesSelecionado = '';
 }
 
 if (!isset($_SESSION['ucs'])) {
@@ -33,16 +84,33 @@ if (!isset($_SESSION['ucs'])) {
 
 // A. Cadastrar Evento (Feriado ou Recesso)
 if (isset($_POST['adicionar_evento'])) {
-    $data = $_POST['data_evento'];
-    $nome = $_POST['nome_evento'];
-    $tipo = $_POST['tipo_evento'];
+    $inicio = $_POST['inicio_evento'] ?? '';
+    $fim = $_POST['fim_evento'] ?? '';
+    $nome = trim($_POST['nome_evento'] ?? '');
+    $descricao = trim($_POST['descricao_evento'] ?? '');
+    $marcacao = trim($_POST['marcacao_evento'] ?? 'Evento');
+    $tipo = $_POST['tipo_evento'] ?? 'feriado';
+    $cor = trim($_POST['cor_evento'] ?? ($tipo === 'recesso' ? '#99c2ff' : '#ff9999'));
 
-    if (!empty($data) && !empty($nome)) {
-        $_SESSION['eventos'][$data] = [
+    if (!empty($inicio) && !empty($nome)) {
+        if (empty($fim)) {
+            $fim = $inicio;
+        }
+
+        if ($fim < $inicio) {
+            $fim = $inicio;
+        }
+
+        $_SESSION['eventos'][] = [
             'nome' => $nome,
-            'tipo' => $tipo
+            'descricao' => $descricao,
+            'marcacao' => $marcacao,
+            'tipo' => $tipo,
+            'cor' => $cor,
+            'inicio' => $inicio,
+            'fim' => $fim
         ];
-        $mensagem = "Evento '$nome' adicionado com sucesso!";
+        $mensagem = "Evento '$nome' cadastrado com sucesso de $inicio até $fim!";
     }
 }
 
@@ -112,10 +180,27 @@ function desenhar_mes($mes, $ano, $eventos, $ucs) {
             $classes[] = 'fim-semana';
         }
 
-        // Regra 2: Eventos personalizados (Feriado ou Recesso)
-        if (isset($eventos[$data_atual])) {
-            $classes[] = $eventos[$data_atual]['tipo']; // 'feriado' ou 'recesso'
-            $tooltip = $eventos[$data_atual]['nome'];
+        // Regra 2: Eventos personalizados e intervalos com início e fim
+        $tooltipItens = [];
+        $estiloEvento = '';
+        foreach ($eventos as $evento) {
+            if ($data_atual >= $evento['inicio'] && $data_atual <= $evento['fim']) {
+                $classes[] = $evento['tipo'];
+                $descricaoEvento = $evento['descricao'] ? ' - ' . $evento['descricao'] : '';
+                $marcacao = $evento['marcacao'] ? ' (' . $evento['marcacao'] . ')' : '';
+                $tooltipItens[] = $evento['nome'] . $marcacao . $descricaoEvento;
+                if (empty($estiloEvento) && !empty($evento['cor'])) {
+                    $estiloEvento = 'background-color:' . htmlspecialchars($evento['cor']) . ';';
+                }
+            }
+        }
+
+        if (!empty($tooltipItens)) {
+            $classes = array_unique($classes);
+            $tooltip = implode(' | ', $tooltipItens);
+            if ($estiloEvento) {
+                $estilo_uc = $estiloEvento;
+            }
         }
 
         // Regra 3: Verificar se o dia pertence a alguma Unidade Curricular (UC)
@@ -173,33 +258,66 @@ function desenhar_mes($mes, $ano, $eventos, $ucs) {
 
     <!-- PAINEL SUPERIOR: CADASTRO DE UCs E EVENTOS -->
     <div class="painel-turma">
-        <!-- Formulário para Criar Eventos (Feriados/Recessos) -->
-        <form action="index.php" method="POST" class="campo" style="grid-column: span 1; gap: 15px;">
-            <h3>Cadastrar Feriado/Recesso</h3>
-            
+        <!-- Formulário para Seleção de Mês -->
+        <form action="index.php" method="GET" class="campo" style="grid-column: span 3; gap: 15px;">
+            <input type="hidden" name="page" value="eventos">
+            <h3>Selecionar mês do calendário</h3>
+            <div class="linha-dupla">
+                <div class="campo">
+                    <label>Mostrar mês</label>
+                    <select name="mes" style="padding:10px; border:1px solid #CCC; border-radius:5px;">
+                        <option value=""<?php echo $mesSelecionado === '' ? ' selected' : ''; ?>>Todos os meses</option>
+                        <?php for ($mes = 1; $mes <= 12; $mes++): ?>
+                            <option value="<?php echo $mes; ?>"<?php echo $mesSelecionado == $mes ? ' selected' : ''; ?>><?php echo $mes . ' - ' . ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][$mes - 1]; ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+                <div class="campo" style="align-self:flex-end;">
+                    <button type="submit" class="btn-salvar" style="margin-top: 20px;">Aplicar</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Formulário para Criar Eventos -->
+        <form action="index.php?page=eventos" method="POST" class="campo" style="grid-column: span 1; gap: 15px;">
+            <h3>Cadastrar Evento</h3>
+
             <div class="campo">
                 <label>Nome do Evento</label>
                 <input type="text" name="nome_evento" required placeholder="Ex: Páscoa, Recesso Escolar">
             </div>
 
             <div class="campo">
-                <label>Data</label>
-                <input type="date" name="data_evento" required>
+                <label>Marcador</label>
+                <input type="text" name="marcacao_evento" placeholder="Ex: Feriado, Recesso, Prova" required>
             </div>
 
             <div class="campo">
-                <label>Tipo</label>
-                <select name="tipo_evento" style="padding:10px; border:1px solid #CCC; border-radius:5px;">
-                    <option value="feriado">Feriado (Vermelho)</option>
-                    <option value="recesso">Recesso (Azul Claro)</option>
-                </select>
+                <label>Motivo / Descrição</label>
+                <textarea name="descricao_evento" placeholder="Descreva o motivo do evento"></textarea>
+            </div>
+
+            <div class="linha-dupla">
+                <div class="campo">
+                    <label>Data de Início</label>
+                    <input type="date" name="inicio_evento" required>
+                </div>
+                <div class="campo">
+                    <label>Data de Término</label>
+                    <input type="date" name="fim_evento" required>
+                </div>
+            </div>
+
+            <div class="campo">
+                <label>Cor do Evento</label>
+                <input type="color" name="cor_evento" value="#ff9999" style="height: 45px; padding: 2px; cursor: pointer;">
             </div>
 
             <button type="submit" name="adicionar_evento" class="btn-salvar">Adicionar Evento</button>
         </form>
 
         <!-- Formulário para Criar Unidades Curriculares (UCs) -->
-        <form action="index.php" method="POST" class="campo" style="grid-column: span 2; gap: 15px;">
+        <form action="index.php?page=eventos" method="POST" class="campo" style="grid-column: span 2; gap: 15px;">
             <h3>Cadastrar Unidade Curricular (UC)</h3>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -228,7 +346,7 @@ function desenhar_mes($mes, $ano, $eventos, $ucs) {
 
             <div style="display: flex; gap: 10px; align-items: flex-end;">
                 <button type="submit" name="adicionar_uc" class="btn-salvar" style="flex-grow: 1;">Salvar Unidade Curricular</button>
-                <button type="submit" name="limpar_dados" class="btn-salvar" style="background-color: #8a1f1f;">Limpar Tudo</button>
+                <button type="submit" name="limpar_dados" class="btn-salvar btn-perigo" style="flex-grow: 1;">Limpar Tudo</button>
             </div>
         </form>
     </div>
@@ -239,9 +357,12 @@ function desenhar_mes($mes, $ano, $eventos, $ucs) {
         
         <div class="calendario">
             <?php
-            // Gera os meses de Janeiro (1) a Junho (6) de 2026 dinamicamente
-            for ($m = 1; $m <= 6; $m++) {
-                desenhar_mes($m, 2026, $_SESSION['eventos'], $_SESSION['ucs']);
+            if (!empty($mesSelecionado)) {
+                desenhar_mes((int) $mesSelecionado, 2026, $_SESSION['eventos'], $_SESSION['ucs']);
+            } else {
+                for ($m = 1; $m <= 6; $m++) {
+                    desenhar_mes($m, 2026, $_SESSION['eventos'], $_SESSION['ucs']);
+                }
             }
             ?>
         </div>

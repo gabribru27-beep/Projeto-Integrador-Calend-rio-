@@ -20,7 +20,7 @@ require_once __DIR__ . '/includes/conexao.php';
 $page = $_GET['page'] ?? 'home';
 
 // Lista de páginas permitidas
-$allowedPages = ['home', 'calendario', 'sobre'];
+$allowedPages = ['home', 'calendario', 'eventos', 'legendas', 'sobre'];
 
 // Verifica se a página é permitida
 if (!in_array($page, $allowedPages, true)) {
