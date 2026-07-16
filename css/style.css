@@ -104,19 +104,19 @@ CALENDÁRIO (GERAL)
 ============================================================*/
 .calendario-container {
     background: white;
-    margin-top: 30px;
-    padding: 20px;
+    margin-top: 10px;
+    padding: 10px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, .10);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, .10);
 }
 
 .calendario-container h3 {
-    margin-bottom: 15px;
+    margin-bottom: 17px;
     color: var(--azul-senac);
 }
 
 .mes-atual {
-    margin-bottom: 15px;
+    margin-bottom: 17px;
 }
 
 /*============================================================
@@ -127,7 +127,7 @@ DIA DO CALENDÁRIO
     color: var(--preto);
     font-weight: 600;
     border: 1px solid #ddd;
-    padding: 10px;
+    padding: 20px;
     text-align: center;
     min-height: 45px;
     
