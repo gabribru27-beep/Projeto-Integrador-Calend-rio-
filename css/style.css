@@ -125,17 +125,25 @@ DIA DO CALENDÁRIO
 .dia {
     background: var(--cinza);
     color: var(--preto);
-    font-weight: 600;
+    font-weight: 700;
     border: 1px solid #ddd;
-    padding: 20px;
+    padding: 18px 12px;
     text-align: center;
-    min-height: 45px;
-    
-    /* Centraliza o número perfeitamente */
+    min-height: 60px;
+    min-width: 60px;
+    line-height: 1.2;
+    position: relative;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    cursor: default;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.dia:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.12);
 }
 
 .dia.vazio {
@@ -145,25 +153,54 @@ DIA DO CALENDÁRIO
 }
 
 .dia.fim-semana{
-    background: #f5f5f5;
+    background: #f8f8f8;
     color: #222;
 }
 
 .dia.feriado{
     background: #ffe5e5;
-    color: #8a1f1f;
     border-color: #ff9999;
 }
 
 .dia.recesso{
     background: #e9f3ff;
-    color: #1b4b8a;
     border-color: #99c2ff;
 }
 
-/* Regra limpa, já que removemos as tags no PHP */
-.dia.uc{
-    color: #333;
+.dia.uc {
+    border-color: #c7d7f0;
+}
+
+.dia::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    bottom: -8px;
+    transform: translate(-50%, 100%);
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 8px 10px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    opacity: 0;
+    pointer-events: none;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    min-width: 120px;
+    max-width: 260px;
+    text-align: left;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    z-index: 5;
+}
+
+.dia:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+.dia[data-tooltip=""]::after {
+    display: none;
 }
 
 /*============================================================

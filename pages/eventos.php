@@ -139,6 +139,18 @@ if (isset($_POST['limpar_dados'])) {
     exit;
 }
 
+function obter_cor_texto(string $hex): string {
+    $hex = ltrim($hex, '#');
+    if (strlen($hex) === 3) {
+        $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+    }
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+    $yiq = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
+    return $yiq >= 128 ? '#111111' : '#ffffff';
+}
+
 // 3. FUNÇÃO AUXILIAR PARA GERAR O MÊS NO CALENDÁRIO
 function desenhar_mes($mes, $ano, $eventos, $ucs) {
     $primeiro_dia_mes = mktime(0, 0, 0, $mes, 1, $ano);
@@ -199,7 +211,8 @@ function desenhar_mes($mes, $ano, $eventos, $ucs) {
             $classes = array_unique($classes);
             $tooltip = implode(' | ', $tooltipItens);
             if ($estiloEvento) {
-                $estilo_uc = $estiloEvento;
+                $corTexto = obter_cor_texto($evento['cor']);
+                $estilo_uc = $estiloEvento . 'color:' . $corTexto . ';';
             }
         }
 
@@ -215,7 +228,8 @@ function desenhar_mes($mes, $ano, $eventos, $ucs) {
         }
 
         $classe_final = implode(' ', $classes);
-        echo "<div class='{$classe_final}' style='{$estilo_uc}' title='{$tooltip}'>";
+        $tooltipAttr = htmlspecialchars($tooltip, ENT_QUOTES, 'UTF-8');
+        echo "<div class='${classe_final}' style='${estilo_uc}' title='${tooltipAttr}' data-tooltip='${tooltipAttr}'>";
         echo $dia;
         echo "</div>";
     }
