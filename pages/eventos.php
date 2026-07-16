@@ -195,14 +195,16 @@ function desenhar_mes($mes, $ano, $eventos, $ucs) {
         // Regra 2: Eventos personalizados e intervalos com início e fim
         $tooltipItens = [];
         $estiloEvento = '';
+        $estiloUC = '';
         foreach ($eventos as $evento) {
             if ($data_atual >= $evento['inicio'] && $data_atual <= $evento['fim']) {
                 $classes[] = $evento['tipo'];
-                $descricaoEvento = $evento['descricao'] ? ' - ' . $evento['descricao'] : '';
-                $marcacao = $evento['marcacao'] ? ' (' . $evento['marcacao'] . ')' : '';
+                $descricaoEvento = !empty($evento['descricao']) ? ' - ' . $evento['descricao'] : '';
+                $marcacao = !empty($evento['marcacao']) ? ' (' . $evento['marcacao'] . ')' : '';
                 $tooltipItens[] = $evento['nome'] . $marcacao . $descricaoEvento;
                 if (empty($estiloEvento) && !empty($evento['cor'])) {
                     $estiloEvento = 'background-color:' . htmlspecialchars($evento['cor']) . ';';
+                    $corEvento = $evento['cor'];
                 }
             }
         }
@@ -210,26 +212,22 @@ function desenhar_mes($mes, $ano, $eventos, $ucs) {
         if (!empty($tooltipItens)) {
             $classes = array_unique($classes);
             $tooltip = implode(' | ', $tooltipItens);
-            if ($estiloEvento) {
-                $corTexto = obter_cor_texto($evento['cor']);
-                $estilo_uc = $estiloEvento . 'color:' . $corTexto . ';';
-            }
         }
 
         // Regra 3: Verificar se o dia pertence a alguma Unidade Curricular (UC)
         foreach ($ucs as $uc) {
             if ($data_atual >= $uc['inicio'] && $data_atual <= $uc['fim']) {
                 $classes[] = 'uc';
-                // Adiciona uma borda inferior ou fundo sutil com a cor da UC cadastrada
-                $estilo_uc = "border-bottom: 4px solid " . $uc['cor'] . ";";
-                $tooltip .= ($tooltip ? " | " : "") . $uc['nome'];
+                $estiloUC = "border-bottom: 4px solid " . htmlspecialchars($uc['cor']) . ";";
+                $tooltip .= ($tooltip ? " | " : "") . htmlspecialchars($uc['nome'], ENT_QUOTES, 'UTF-8');
                 break; // Mostra a primeira UC encontrada para o dia
             }
         }
 
         $classe_final = implode(' ', $classes);
+        $styleAttr = trim($estiloEvento . ' ' . $estiloUC);
         $tooltipAttr = htmlspecialchars($tooltip, ENT_QUOTES, 'UTF-8');
-        echo "<div class='${classe_final}' style='${estilo_uc}' title='${tooltipAttr}' data-tooltip='${tooltipAttr}'>";
+        echo "<div class='${classe_final}' style='${styleAttr}' title='${tooltipAttr}' data-tooltip='${tooltipAttr}'>";
         echo $dia;
         echo "</div>";
     }
@@ -374,7 +372,7 @@ function desenhar_mes($mes, $ano, $eventos, $ucs) {
             if (!empty($mesSelecionado)) {
                 desenhar_mes((int) $mesSelecionado, 2026, $_SESSION['eventos'], $_SESSION['ucs']);
             } else {
-                for ($m = 1; $m <= 6; $m++) {
+                for ($m = 1; $m <= 12; $m++) {
                     desenhar_mes($m, 2026, $_SESSION['eventos'], $_SESSION['ucs']);
                 }
             }

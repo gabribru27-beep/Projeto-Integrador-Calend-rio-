@@ -129,7 +129,7 @@ DIA DO CALENDÁRIO
     border: 1px solid #ddd;
     padding: 18px 12px;
     text-align: center;
-    min-height: 60px;
+    min-height: 80px;
     min-width: 60px;
     line-height: 1.2;
     position: relative;
@@ -175,8 +175,8 @@ DIA DO CALENDÁRIO
     content: attr(data-tooltip);
     position: absolute;
     left: 50%;
-    bottom: -8px;
-    transform: translate(-50%, 100%);
+    bottom: calc(100% + 10px);
+    transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.85);
     color: #fff;
     padding: 8px 10px;
@@ -191,7 +191,7 @@ DIA DO CALENDÁRIO
     text-align: left;
     visibility: hidden;
     transition: opacity 0.15s ease, visibility 0.15s ease;
-    z-index: 5;
+    z-index: 20;
 }
 
 .dia:hover::after {
@@ -345,15 +345,16 @@ GRADE DOS MESES (CALENDÁRIO)
 ==========================================================*/
 .calendario{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:25px;
+    grid-template-columns:repeat(3,minmax(260px,1fr));
+    gap:30px;
 }
 
 .mes{
     background:white;
     border-radius:8px;
     box-shadow:0 0 10px rgba(0,0,0,.10);
-    overflow:hidden;
+    overflow: visible;
+    min-height: 580px;
 }
 
 .mes h2{
@@ -380,7 +381,8 @@ GRADE DOS MESES (CALENDÁRIO)
 .dias{
     display:grid;
     grid-template-columns:repeat(7,1fr);
-    grid-template-rows:repeat(6, minmax(40px, auto));
+    grid-template-rows:repeat(6, minmax(60px, auto));
+    min-height: 420px;
 }
 
 /*==========================================================
@@ -438,9 +440,10 @@ LEGENDA
 .legenda{
     margin-top:35px;
     display:flex;
+    flex-wrap: wrap;
     gap:25px;
     background:white;
-    padding:20px;
+    padding:24px;
     border-radius:8px;
 }
 
