@@ -202,6 +202,7 @@ PAINEL SUPERIOR
 }
 
 .campo input,
+.campo select,
 .campo textarea{
     padding:10px;
     border:1px solid #CCC;
@@ -245,6 +246,64 @@ PAINEL SUPERIOR
 }
 
 /*==========================================================
+FORMULÁRIOS DE CADASTRO (EVENTOS E UCS)
+==========================================================*/
+.form-painel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-painel h3 {
+    color: var(--azul-senac);
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+    border-bottom: 2px solid var(--cinza);
+    padding-bottom: 8px;
+}
+
+.form-span-1 {
+    grid-column: span 1;
+}
+
+.form-span-2 {
+    grid-column: span 2;
+}
+
+.linha-dupla {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+input[type="color"] {
+    height: 40px;
+    padding: 2px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.botoes-acao {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    margin-top: auto;
+}
+
+.btn-crescer {
+    flex-grow: 1;
+}
+
+.btn-perigo {
+    background: #8a1f1f;
+}
+
+.btn-perigo:hover,
+.btn-perigo:focus {
+    background: #5c1414;
+}
+
+/*==========================================================
 GRADE DOS MESES (CALENDÁRIO)
 ==========================================================*/
 .calendario{
@@ -284,7 +343,6 @@ GRADE DOS MESES (CALENDÁRIO)
 .dias{
     display:grid;
     grid-template-columns:repeat(7,1fr);
-    /* Altura cresce automaticamente caso precise */
     grid-template-rows:repeat(6, minmax(40px, auto));
 }
 
@@ -311,8 +369,6 @@ UNIDADES CURRICULARES (UCs)
     display: flex;
     flex-direction: column;
     justify-content: center;
-    
-    /* CORREÇÃO DA PROPORÇÃO: evita que vaze as laterais */
     min-width: 0; 
     overflow: hidden;
 }
@@ -320,8 +376,6 @@ UNIDADES CURRICULARES (UCs)
 .uc-barra strong{
     font-size: 0.92rem;
     margin-bottom: 6px;
-    
-    /* Trunca textos muito longos com "..." para não quebrar a barra */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -335,8 +389,6 @@ UNIDADES CURRICULARES (UCs)
     background: rgba(255,255,255,0.8);
     border-radius: 999px;
     font-size: 0.78rem;
-    
-    /* Trunca datas/texto caso fique muito grande na responsividade */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -380,6 +432,31 @@ LEGENDA
 }
 
 /*==========================================================
+BOTÃO LEGENDA
+==========================================================*/
+.btn-legenda {
+    display: inline-block;
+    background: var(--laranja);
+    color: var(--branco);
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+    transition: background 0.3s ease, transform 0.2s ease;
+    border: none;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.btn-legenda:hover,
+.btn-legenda:focus {
+    background: var(--azul-senac);
+    color: var(--branco);
+    transform: translateY(-2px);
+}
+
+/*==========================================================
 IMPRESSÃO
 ==========================================================*/
 @media print{
@@ -394,6 +471,12 @@ IMPRESSÃO
     }
     .calendario{
         gap:10px;
+    }
+    .btn-legenda {
+        display: none;
+    }
+    .painel-turma {
+        display: none; /* Esconde os formulários na impressão */
     }
 }
 
@@ -412,6 +495,13 @@ RESPONSIVIDADE (TABLET & CELULAR)
     }
     .painel-turma{
         grid-template-columns:1fr;
+    }
+    .form-span-1, 
+    .form-span-2 {
+        grid-column: span 1; /* Quebra as colunas do formulário para celular */
+    }
+    .linha-dupla {
+        grid-template-columns: 1fr; /* Um campo embaixo do outro no celular */
     }
     .legenda{
         flex-direction: column;

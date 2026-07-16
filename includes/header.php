@@ -10,27 +10,25 @@ Caso futuramente seja necessário alterar o cabeçalho,
 basta modificar apenas este arquivo.
 ========================================================-->
 <header>
-    <!-- Área do logotipo -->
     <div class="logo">
-        <img
-            src="imagens/logo-senac.png"
-            alt="Logo SENAC">
+        <!-- Sua imagem do SENAC -->
+        <img src="imagens/logo-senac.png" alt="Logo SENAC">
     </div>
-
-    <!-- Área dos títulos -->
+    
     <div class="titulo">
-        <h1>
-            <?php echo htmlspecialchars($tituloSistema); ?>
-        </h1>
-        <h2>
-            SENAC Minas
-        </h2>
+        <h1>Calendário Acadêmico SENAC</h1>
+        <h2>SENAC Minas</h2>
     </div>
 
-    <!-- Menu de navegação -->
-    <nav class="menu">
-        <a href="index.php?page=home">Home</a>
-        <a href="index.php?page=calendario">Calendário</a>
-        <a href="index.php?page=sobre">Sobre</a>
-    </nav>
+    <!-- AQUI ESTÁ O SEU MENU -->
+    <div class="menu">
+        <a href="?page=home">Home</a>
+        <a href="?page=calendario">Calendário</a>
+        
+        <!-- OS NOVOS BOTÕES AQUI -->
+        <a href="?page=eventos">Eventos e UCs</a>
+        <a href="?page=legendas">Legendas</a>
+        
+        <a href="?page=sobre">Sobre</a>
+    </div>
 </header>
