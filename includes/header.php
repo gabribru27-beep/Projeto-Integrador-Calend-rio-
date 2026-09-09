@@ -22,8 +22,8 @@ basta modificar apenas este arquivo.
 
     <!-- AQUI ESTÁ O SEU MENU -->
     <div class="menu">
-        <a href="?page=home">Home</a>
-        <a href="?page=calendario">Calendário</a>
+        <a href="?page=home">Calendário</a>
+        <a href="?page=calendario">Home</a>
         
         <!-- OS NOVOS BOTÕES AQUI -->
         <a href="?page=eventos">Eventos e UCs</a>

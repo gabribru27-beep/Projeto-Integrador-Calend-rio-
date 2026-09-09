@@ -1,13 +1,29 @@
 <?php
+session_start();
 require_once __DIR__ . '/../includes/conexao.php';
 
-// Captura de dados do formulário
-$curso = filter_input(INPUT_POST, 'curso', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '';
-$turma = filter_input(INPUT_POST, 'turma', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '';
-$turno = filter_input(INPUT_POST, 'turno', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '';
-$carga = filter_input(INPUT_POST, 'carga', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '';
-$docentes = filter_input(INPUT_POST, 'docentes', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '';
-$dataInicial = filter_input(INPUT_POST, 'data_inicial', FILTER_SANITIZE_STRING) ?: '';
+// Carrega o curso selecionado e permite que o formulário do calendário o atualize.
+$indiceCurso = filter_input(INPUT_GET, 'curso', FILTER_VALIDATE_INT);
+$cursoSelecionado = null;
+if ($indiceCurso !== false && $indiceCurso !== null && isset($_SESSION['cursos_cadastrados'][$indiceCurso])) {
+    $cursoSelecionado = $_SESSION['cursos_cadastrados'][$indiceCurso];
+}
+
+$curso = $cursoSelecionado['nome'] ?? '';
+$turma = $cursoSelecionado['turma'] ?? '';
+$turno = $cursoSelecionado['turno'] ?? '';
+$carga = $cursoSelecionado['carga_horaria'] ?? '';
+$docentes = $cursoSelecionado['docentes'] ?? '';
+$dataInicial = $cursoSelecionado['data_inicial'] ?? '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $curso = filter_input(INPUT_POST, 'curso', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: $curso;
+    $turma = filter_input(INPUT_POST, 'turma', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: $turma;
+    $turno = filter_input(INPUT_POST, 'turno', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: $turno;
+    $carga = filter_input(INPUT_POST, 'carga', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: $carga;
+    $docentes = filter_input(INPUT_POST, 'docentes', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: $docentes;
+    $dataInicial = filter_input(INPUT_POST, 'data_inicial', FILTER_SANITIZE_STRING) ?: $dataInicial;
+}
 $dataFinal = filter_input(INPUT_POST, 'data_final', FILTER_SANITIZE_STRING) ?: '';
 $cadastroRealizado = $_SERVER['REQUEST_METHOD'] === 'POST';
 
@@ -45,36 +61,133 @@ $recessos = [
 
 $unidadesCurriculares = [
     [
-        'nome' => 'Planejamento de Sistemas',
+        'nome' => 'UC1',
         'inicio' => "$anoReferencia-01-10",
         'fim' => "$anoReferencia-02-28",
         'cor' => '#bdd7ee'
     ],
     [
-        'nome' => 'Banco de Dados',
+        'nome' => 'UC2',
         'inicio' => "$anoReferencia-02-15",
         'fim' => "$anoReferencia-04-10",
         'cor' => '#d9d2e9'
     ],
     [
-        'nome' => 'Redes de Computadores',
+        'nome' => 'UC3',
         'inicio' => "$anoReferencia-04-06",
         'fim' => "$anoReferencia-05-25",
         'cor' => '#fff2cc'
     ],
     [
-        'nome' => 'Desenvolvimento Web',
+        'nome' => 'UC4',
         'inicio' => "$anoReferencia-06-01",
         'fim' => "$anoReferencia-07-20",
         'cor' => '#f2dcdb'
     ],
     [
-        'nome' => 'Projeto Integrador',
+        'nome' => 'UC5',
         'inicio' => "$anoReferencia-08-10",
         'fim' => "$anoReferencia-10-15",
         'cor' => '#d8e4bc'
+    ],
+    [
+        'nome' => 'UC6',
+        'inicio' => "$anoReferencia-01-15",
+        'fim' => "$anoReferencia-02-05",
+        'cor' => '#f9cb9c'
+    ],
+    [
+        'nome' => 'UC7',
+        'inicio' => "$anoReferencia-02-01",
+        'fim' => "$anoReferencia-02-20",
+        'cor' => '#c9daf8'
+    ],
+    [
+        'nome' => 'UC8',
+        'inicio' => "$anoReferencia-02-20",
+        'fim' => "$anoReferencia-03-15",
+        'cor' => '#ead1dc'
+    ],
+    [
+        'nome' => 'UC9',
+        'inicio' => "$anoReferencia-03-10",
+        'fim' => "$anoReferencia-04-05",
+        'cor' => '#d9ead3'
+    ],
+    [
+        'nome' => 'UC10',
+        'inicio' => "$anoReferencia-03-25",
+        'fim' => "$anoReferencia-04-20",
+        'cor' => '#ffe599'
+    ],
+    [
+        'nome' => 'UC11',
+        'inicio' => "$anoReferencia-04-20",
+        'fim' => "$anoReferencia-05-15",
+        'cor' => '#b6d7a8'
+    ],
+    [
+        'nome' => 'UC12',
+        'inicio' => "$anoReferencia-05-01",
+        'fim' => "$anoReferencia-05-30",
+        'cor' => '#a2c4c9'
+    ],
+    [
+        'nome' => 'UC13',
+        'inicio' => "$anoReferencia-05-25",
+        'fim' => "$anoReferencia-06-20",
+        'cor' => '#d5a6bd'
+    ],
+    [
+        'nome' => 'UC14',
+        'inicio' => "$anoReferencia-06-15",
+        'fim' => "$anoReferencia-07-10",
+        'cor' => '#f6b26b'
+    ],
+    [
+        'nome' => 'UC15',
+        'inicio' => "$anoReferencia-07-15",
+        'fim' => "$anoReferencia-08-10",
+        'cor' => '#9fc5e8'
+    ],
+    [
+        'nome' => 'UC16',
+        'inicio' => "$anoReferencia-08-01",
+        'fim' => "$anoReferencia-08-30",
+        'cor' => '#b4a7d6'
+    ],
+    [
+        'nome' => 'UC17',
+        'inicio' => "$anoReferencia-08-25",
+        'fim' => "$anoReferencia-09-20",
+        'cor' => '#76a5af'
+    ],
+    [
+        'nome' => 'UC18',
+        'inicio' => "$anoReferencia-09-15",
+        'fim' => "$anoReferencia-10-10",
+        'cor' => '#e6b8af'
+    ],
+    [
+        'nome' => 'UC19',
+        'inicio' => "$anoReferencia-10-05",
+        'fim' => "$anoReferencia-11-05",
+        'cor' => '#93c47d'
+    ],
+    [
+        'nome' => 'UC20',
+        'inicio' => "$anoReferencia-11-01",
+        'fim' => "$anoReferencia-12-15",
+        'cor' => '#8e7cc3'
     ]
 ];
+
+$quantidadeUcs = filter_input(INPUT_POST, 'quantidade_ucs', FILTER_VALIDATE_INT);
+if ($quantidadeUcs === false || $quantidadeUcs === null) {
+    $quantidadeUcs = 5;
+}
+$quantidadeUcs = max(1, min(20, $quantidadeUcs));
+$unidadesCurriculares = array_slice($unidadesCurriculares, 0, $quantidadeUcs);
 
 // Se o formulário enviar valores para as UCs, sobrescreve os valores padrão
 foreach ($unidadesCurriculares as $idx => $ucItem) {
@@ -282,6 +395,17 @@ function gerarMes(int $numeroMes, string $nomeMes, string $ano, array $feriados,
             <div class="campo">
                 <label for="data_final">Data Final</label>
                 <input id="data_final" name="data_final" type="date" value="<?= htmlspecialchars($dataFinal) ?>">
+            </div>
+            <div class="campo">
+                <label for="quantidade_ucs">Quantidade de UCs</label>
+                <select id="quantidade_ucs" name="quantidade_ucs">
+                    <?php for ($quantidade = 1; $quantidade <= 20; $quantidade++): ?>
+                        <option value="<?= $quantidade ?>" <?= $quantidade === $quantidadeUcs ? 'selected' : '' ?>><?= $quantidade ?></option>
+                    <?php endfor; ?>
+                </select>
+            </div>
+            <div class="campo campo-botao">
+                <button type="submit" name="atualizar_ucs" class="btn-salvar">Atualizar UCs</button>
             </div>
 
             <?php foreach ($unidadesCurriculares as $i => $ucItem): ?>

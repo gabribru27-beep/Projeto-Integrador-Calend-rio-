@@ -17,14 +17,14 @@ require_once __DIR__ . '/includes/conexao.php';
  *********************************************************************/
 
 // Obtém a página solicitada
-$page = $_GET['page'] ?? 'home';
+$page = $_GET['page'] ?? 'calendario';
 
 // Lista de páginas permitidas
 $allowedPages = ['home', 'calendario', 'eventos', 'legendas', 'sobre'];
 
 // Verifica se a página é permitida
 if (!in_array($page, $allowedPages, true)) {
-    $page = 'home';
+  $page = 'calendario';
 }
 ?>
 <!DOCTYPE html>

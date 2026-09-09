@@ -23,4 +23,4 @@ Depois acesse:
 
 - Se esti
 butido do PHP: [http://localhost:8000/index.php](http://localhost:8000/index.php)
-- Se estiver usando XAMPP/Apache: [http://localhost/CALENDARIO_SENAC/](http://localhost/CALENDARIO_SENAC/)
+- Se estiver usando XAMPP/Apache: [http://localhost/Calendario_academico/](http://localhost/CALENDARIO_SENAC/)

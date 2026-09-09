@@ -151,6 +151,29 @@ function obter_cor_texto(string $hex): string {
     return $yiq >= 128 ? '#111111' : '#ffffff';
 }
 
+function obter_intervalo_mes(array $uc, int $mes, int $ano): ?array {
+    $primeiroDia = DateTimeImmutable::createFromFormat('Y-n-j', "$ano-$mes-1");
+    $ultimoDia = DateTimeImmutable::createFromFormat('Y-n-j', "$ano-$mes-" . $primeiroDia->format('t'));
+
+    $inicio = max($uc['inicio'], $primeiroDia->format('Y-m-d'));
+    $fim = min($uc['fim'], $ultimoDia->format('Y-m-d'));
+
+    if ($inicio > $fim) {
+        return null;
+    }
+
+    $inicioDia = (int) DateTimeImmutable::createFromFormat('Y-m-d', $inicio)->format('j');
+    $fimDia = (int) DateTimeImmutable::createFromFormat('Y-m-d', $fim)->format('j');
+    $totalDias = (int) $primeiroDia->format('t');
+
+    return [
+        'offset' => ($inicioDia - 1) / $totalDias * 100,
+        'largura' => ($fimDia - $inicioDia + 1) / $totalDias * 100,
+        'inicio' => $inicio,
+        'fim' => $fim
+    ];
+}
+
 // 3. FUNÇÃO AUXILIAR PARA GERAR O MÊS NO CALENDÁRIO
 function desenhar_mes($mes, $ano, $eventos, $ucs) {
     $primeiro_dia_mes = mktime(0, 0, 0, $mes, 1, $ano);
@@ -163,7 +186,7 @@ function desenhar_mes($mes, $ano, $eventos, $ucs) {
         9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
     ];
 
-    echo "<div class='mes'>";
+    echo "<article class='mes'>";
     echo "<h2>" . $nomes_meses[$mes] . " " . $ano . "</h2>";
     
     // Cabeçalho dos dias da semana
@@ -185,8 +208,6 @@ function desenhar_mes($mes, $ano, $eventos, $ucs) {
         
         $classes = ['dia'];
         $tooltip = "";
-        $estilo_uc = "";
-
         // Regra 1: Fim de semana
         if ($dia_semana == 0 || $dia_semana == 6) {
             $classes[] = 'fim-semana';
@@ -218,7 +239,9 @@ function desenhar_mes($mes, $ano, $eventos, $ucs) {
         foreach ($ucs as $uc) {
             if ($data_atual >= $uc['inicio'] && $data_atual <= $uc['fim']) {
                 $classes[] = 'uc';
-                $estiloUC = "border-bottom: 4px solid " . htmlspecialchars($uc['cor']) . ";";
+                if (empty($estiloEvento) && $dia_semana != 0 && $dia_semana != 6) {
+                    $estiloUC = 'background-color:' . htmlspecialchars($uc['cor']) . '; color:#333333;';
+                }
                 $tooltip .= ($tooltip ? " | " : "") . htmlspecialchars($uc['nome'], ENT_QUOTES, 'UTF-8');
                 break; // Mostra a primeira UC encontrada para o dia
             }
@@ -232,8 +255,39 @@ function desenhar_mes($mes, $ano, $eventos, $ucs) {
         echo "</div>";
     }
 
+    $totalCelas = $dia_semana_inicio + $total_dias;
+    while ($totalCelas % 7 !== 0) {
+        echo "<div class='dia vazio'></div>";
+        $totalCelas++;
+    }
+
     echo "</div>"; // Fim .dias
-    echo "</div>"; // Fim .mes
+
+    $ucsMes = [];
+    foreach ($ucs as $uc) {
+        $intervalo = obter_intervalo_mes($uc, (int) $mes, (int) $ano);
+        if ($intervalo !== null) {
+            $ucsMes[] = ['uc' => $uc, 'intervalo' => $intervalo];
+        }
+    }
+
+    if (!empty($ucsMes)) {
+        echo "<div class='ucs'>";
+        foreach ($ucsMes as $item) {
+            $uc = $item['uc'];
+            $intervalo = $item['intervalo'];
+            $inicioLabel = DateTimeImmutable::createFromFormat('Y-m-d', $intervalo['inicio'])->format('d/m');
+            $fimLabel = DateTimeImmutable::createFromFormat('Y-m-d', $intervalo['fim'])->format('d/m');
+
+            echo "<div class='uc-barra' style='margin-left:" . number_format($intervalo['offset'], 4) . "%; width:" . number_format($intervalo['largura'], 4) . "%; background-color:" . htmlspecialchars($uc['cor']) . ";'>";
+            echo '<strong>' . htmlspecialchars($uc['nome']) . '</strong>';
+            echo '<span class="tag">' . $inicioLabel . ' - ' . $fimLabel . '</span>';
+            echo "</div>";
+        }
+        echo "</div>";
+    }
+
+    echo "</article>"; // Fim .mes
 }
 ?>
 
@@ -245,20 +299,6 @@ function desenhar_mes($mes, $ano, $eventos, $ucs) {
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<header>
-    <div class="logo">
-        <img src="https://www.mg.senac.br/hotsite/matriculas/images/logo-senac-branco.png" alt="Logo SENAC" style="height: 50px;">
-    </div>
-    <div class="titulo">
-        <h1>Calendário Acadêmico</h1>
-        <h2>SENAC Minas</h2>
-    </div>
-    <div class="menu">
-        <a href="index.php">Atualizar Calendário</a>
-        <a href="legenda.php" class="btn-legenda" style="margin-top: 0; padding: 10px 14px;">Legendas</a>
-    </div>
-</header>
 
 <main>
 
@@ -364,21 +404,17 @@ function desenhar_mes($mes, $ano, $eventos, $ucs) {
     </div>
 
     <!-- CALENDÁRIO DINÂMICO -->
-    <div class="calendario-container">
-        <h3>Calendário Letivo de 2026</h3>
-        
-        <div class="calendario">
-            <?php
-            if (!empty($mesSelecionado)) {
-                desenhar_mes((int) $mesSelecionado, 2026, $_SESSION['eventos'], $_SESSION['ucs']);
-            } else {
-                for ($m = 1; $m <= 12; $m++) {
-                    desenhar_mes($m, 2026, $_SESSION['eventos'], $_SESSION['ucs']);
-                }
+    <section class="calendario">
+        <?php
+        if (!empty($mesSelecionado)) {
+            desenhar_mes((int) $mesSelecionado, 2026, $_SESSION['eventos'], $_SESSION['ucs']);
+        } else {
+            for ($m = 1; $m <= 12; $m++) {
+                desenhar_mes($m, 2026, $_SESSION['eventos'], $_SESSION['ucs']);
             }
-            ?>
-        </div>
-    </div>
+        }
+        ?>
+    </section>
 
     <!-- SEÇÃO DE LEGENDAS DINÂMICAS -->
     <div class="legenda">
